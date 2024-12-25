@@ -39,6 +39,25 @@
 	move $t2, $v0
 	
 	# Convert the string input into integer
+string_to_int:
+    li $v0, 0          
+
+convert_loop:
+    lb $t1, 0($a0)   
+    beqz $t1, end_convert
+
+  
+    li $t2, 48         
+    sub $t1, $t1, $t2  
+
+  
+    mul $v0, $v0, 10     
+
+    addi $a0, $a0, 1     
+    j convert_loop
+
+end_convert:
+    jr $ra         
 	
 	# Implement OtherToDecimal
 	
