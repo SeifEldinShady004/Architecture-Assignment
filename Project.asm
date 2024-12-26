@@ -62,8 +62,54 @@ end_convert:
 	# Implement OtherToDecimal
 	
 	# Implement DecimalToOther
+decimalToOther:
+	add $t0,$a0,$zero
+	add $t1,$a1,$zero
+	li $t2, 1
 	
-	
-	
-	
-	
+
+	while1:
+		beqz $t0,endWhile1
+		div $t0,$t1
+		mflo $t0
+		addi $sp,$sp,-1
+		mfhi $t3
+		sb $t3,($sp)
+		addi $t2,$t2,1
+		j while1
+		
+	endWhile1:
+		li $v0,9
+		move $a0, $t2
+		syscall
+		move $t3, $v0
+		move $t5,$t3
+		addi $t2,$t2,-1
+		
+	while2:
+		beqz $t2,endWhile2
+		lb $t4, ($sp)
+		addi $sp,$sp,1
+		if:
+			slti $t0,$t4,10
+			beqz $t0,else
+			addi $t4, $t4,48
+			j endIf
+		else:
+			addi $t4,$t4,55
+		endIf:
+		sb $t4,($t5)
+		addi $t5,$t5,1
+		addi $t2,$t2,-1
+		j while2
+	endWhile2:
+		sb $zero, ($t5)
+		
+		move $v0, $t3
+		jr $ra
+		
+		# li $v0, 4         
+		# move $a0, $t3  
+		# syscall
+
+		
