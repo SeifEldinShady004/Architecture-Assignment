@@ -232,43 +232,55 @@ Validate_if_the_number_belongs_to_the_CurrentSystem: #Bonus
  	j Continue
  #####################################################################################################################	DecimalToOther
 decimalToOther:
-    add $t0, $s2, $zero      # Load decimal number from $s2
-    add $t1, $s1, $zero      # Load new base from $s1
-    add $sp, $sp, -100       # Allocate stack space
-    add $t5, $sp, $zero      # Save stack pointer
-    
-    # Convert decimal to new base
-    convertLoop:
-        div $t0, $t1         # Divide by new base
-        mflo $t0             # Quotient
-        mfhi $t3             # Remainder
-        
-        # Convert remainder to character
-        blt $t3, 10, addDigit
-        addi $t3, $t3, 87    # Convert to a-f
-        j storeChar
-    addDigit:
-        addi $t3, $t3, 48    # Convert to 0-9
-    storeChar:
-        sb $t3, ($t5)        # Store character
-        addi $t5, $t5, 1
-        bnez $t0, convertLoop
+	add $t0, $s2, $zero      # Load decimal number from $s2
+	add $t1, $s1, $zero      # Load new base from $s1
+	li $t2, 1
+	
 
-    # Print result
-    li $v0, 4
-    la $a0, Result_msg
-    syscall
-    
-    # Print characters in reverse
-    printLoop:
-        addi $t5, $t5, -1    # Move back one character
-        lb $a0, ($t5)        # Load character
-        li $v0, 11           # Print character
-        syscall
-        bne $t5, $sp, printLoop
-    
-    add $sp, $sp, 100        # Restore stack
-    jr $ra
+	while1:
+		beqz $t0,endWhile1
+		div $t0,$t1
+		mflo $t0
+		addi $sp,$sp,-1
+		mfhi $t3
+		sb $t3,($sp)
+		addi $t2,$t2,1
+		j while1
+		
+	endWhile1:
+		li $v0,9
+		move $a0, $t2
+		syscall
+		move $t3, $v0
+		move $t5,$t3
+		addi $t2,$t2,-1
+		
+	while2:
+		beqz $t2,endWhile2
+		lb $t4, ($sp)
+		addi $sp,$sp,1
+		if:
+			slti $t0,$t4,10
+			beqz $t0,else
+			addi $t4, $t4,48
+			j endIf
+		else:
+			addi $t4,$t4,55
+		endIf:
+		sb $t4,($t5)
+		addi $t5,$t5,1
+		addi $t2,$t2,-1
+		j while2
+	endWhile2:
+		sb $zero, ($t5)
+		# Print result
+		li $v0, 4
+		la $a0, Result_msg
+		syscall
+		 li $v0, 4         
+		 move $a0, $t3  
+		 syscall
+		 jr $ra
  
  ########################################## OtherToDecimal
  count:
