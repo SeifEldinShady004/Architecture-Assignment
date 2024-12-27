@@ -67,6 +67,8 @@
 		beqz $v1,EndProgram
 		jal count
 		jal OtherToDecimal
+	        jal decimalToOther 
+		
 		
 		
 		li $v0,1
